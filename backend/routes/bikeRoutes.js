@@ -1,8 +1,11 @@
 import express from "express";
-import {addBike} from "../controllers/bikeControllers.js"
+import { addBike, updateBike, deleteBike } from "../controllers/bikeControllers.js"
+import { authenticate, authorizeRoles } from "../middleware/authMiddleware.js"
 
 
 const router = express.Router();
 
-router.post("/", addBike);
+router.post("/", authenticate, authorizeRoles("manager"), addBike);
+router.put("/:id", authenticate, authorizeRoles("manager"), updateBike);
+router.delete("/:id", authenticate, authorizeRoles("manager"), deleteBike)
 export default router;
