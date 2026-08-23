@@ -1,4 +1,6 @@
 import Bike from "../models/BikeModel.js";
+import ReservationModel from "../models/ReservationModel.js"
+import mongoose from "mongoose";
 const addBike = async (req, res) => {
     try {
         const { name, color, location, isAvailable } = req.body;
@@ -113,9 +115,84 @@ const deleteBike = async (req, res) => {
     }
 }
 
+const getBikes = async (req, res) => {
+    try {
+        const { fromDate, toDate, page = 1, limit = 10 } = req.query;
+        const pageNumber = Number(page);
+        const limitNumber = Number(limit);
+        if (pageNumber < 1 || limitNumber < 1) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid page or limit",
+            });
+        }
+        if ((fromDate && !toDate) || (!fromDate && toDate)) {
+            return res.status(400).json({
+                success: false,
+                message: "Both fromDate and toDate are required",
+            });
+        }
+        const query = {};
+        if (req.user?.role !== "manager") {
+            query.isAvailable = true;
+        }
 
+        if (fromDate && toDate) {
+            const startDate = new Date(fromDate);
+            const endDate = new Date(toDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            endDate.setHours(23, 59, 59, 999);
+
+            if (
+                isNaN(startDate) ||
+                isNaN(endDate) ||
+                startDate < today ||
+                endDate < startDate
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid date range",
+                });
+            }
+
+            const reservations = await ReservationModel.find({
+                status: "active",
+                fromDate: { $lte: endDate },
+                toDate: { $gte: startDate },
+            }).select("bike");
+
+            query._id = {
+                $nin: reservations.map(r => r.bike),
+            };
+        }
+
+        const skip = (pageNumber - 1) * limitNumber;
+        const totalBikes = await Bike.countDocuments(query);
+
+        const bikes = await Bike.find(query)
+            .skip(skip)
+            .limit(limitNumber)
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            data: bikes,
+            totalPages: Math.ceil(totalBikes / limitNumber),
+        });
+
+    } catch (error) {
+        console.error("Get bikes error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+};
 export {
     addBike,
     updateBike,
-    deleteBike
+    deleteBike,
+    getBikes
 }
