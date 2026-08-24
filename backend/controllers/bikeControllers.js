@@ -1,6 +1,6 @@
 import Bike from "../models/BikeModel.js";
 import ReservationModel from "../models/ReservationModel.js"
-import mongoose from "mongoose";
+
 const addBike = async (req, res) => {
     try {
         const { name, color, location, isAvailable } = req.body;
@@ -118,6 +118,7 @@ const deleteBike = async (req, res) => {
 const getBikes = async (req, res) => {
     try {
         const { fromDate, toDate, page = 1, limit = 10 } = req.query;
+        console.log(`from date ${fromDate} `)
         const pageNumber = Number(page);
         const limitNumber = Number(limit);
         if (pageNumber < 1 || limitNumber < 1) {
@@ -136,14 +137,12 @@ const getBikes = async (req, res) => {
         if (req.user?.role !== "manager") {
             query.isAvailable = true;
         }
-
         if (fromDate && toDate) {
             const startDate = new Date(fromDate);
             const endDate = new Date(toDate);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             endDate.setHours(23, 59, 59, 999);
-
             if (
                 isNaN(startDate) ||
                 isNaN(endDate) ||
@@ -155,7 +154,6 @@ const getBikes = async (req, res) => {
                     message: "Invalid date range",
                 });
             }
-
             const reservations = await ReservationModel.find({
                 status: "active",
                 fromDate: { $lte: endDate },
@@ -166,7 +164,6 @@ const getBikes = async (req, res) => {
                 $nin: reservations.map(r => r.bike),
             };
         }
-
         const skip = (pageNumber - 1) * limitNumber;
         const totalBikes = await Bike.countDocuments(query);
 

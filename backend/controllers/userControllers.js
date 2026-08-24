@@ -106,6 +106,13 @@ const createUser = async (req, res) => {
         const normalizedEmail = email.trim().toLowerCase();
         const isValidEmail =
             /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
+
+        if (!isValidEmail) {
+            return res.status(400).json({
+                message: "Invalid email"
+            });
+        }
+
         const existingUser = await User.findOne({
             email: normalizedEmail
         })
