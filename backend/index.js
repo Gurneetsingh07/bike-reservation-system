@@ -4,8 +4,15 @@ import connectDB from "./config/db.js";
 import bikeRoutes from "./routes/bikeRoutes.js";
 import userRoutes from "./routes/userRoutes.js"
 import reservationRoutes from "./routes/reservationRoutes.js";
+import cors from "cors";
 dotenv.config();
 const app = express();
+app.use(
+    cors({
+        origin: "http://localhost:3000",
+        credentials: true,
+    })
+);
 app.use(express.json());
 app.use("/bikes", bikeRoutes);
 app.use("/user", userRoutes)
