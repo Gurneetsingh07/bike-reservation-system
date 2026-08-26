@@ -213,3 +213,176 @@ code {
     justify-content: flex-end;
   }
 }
+
+.bike-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  padding: 10px 0;
+}
+
+.bike-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #dbe4f0;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.bike-card h3 {
+  margin: 0 0 14px;
+  color: #0f172a;
+}
+
+.bike-card p {
+  margin: 8px 0;
+  color: #334155;
+}
+
+.bike-card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.bike-card-actions button {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  color: white;
+}
+
+.bike-card-actions button:first-child {
+  background: #f59e0b;
+}
+
+.bike-card-actions button:last-child {
+  background: #ef4444;
+}
+
+.home-container {
+  display: flex;
+  gap: 30px;
+  padding: 24px;
+  align-items: flex-start;
+}
+
+
+.filter-section {
+  width: 250px;
+  flex-shrink: 0;
+}
+
+.filter-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  padding: 20px;
+
+  border: 1px solid #ddd;
+  border-radius: 10px;
+
+  background-color: #f8f8f8;
+}
+
+.filter-panel h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.filter-panel label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.filter-panel input,
+.filter-panel select {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.filter-panel button {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+
+
+.bike-section {
+  flex: 1;
+  min-width: 0;
+}
+
+
+
+.bike-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+
+.bike-card {
+  width: 250px;
+  padding: 20px;
+
+  border: 1px solid #ddd;
+  border-radius: 10px;
+
+  background-color: white;
+
+  box-sizing: border-box;
+}
+
+.bike-card h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.bike-card p {
+  margin: 8px 0;
+}
+
+
+
+.bike-card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.bike-card-actions button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+
+@media (max-width: 768px) {
+
+  .home-container {
+    flex-direction: column;
+  }
+
+  .filter-section {
+    width: 100%;
+  }
+
+  .bike-section {
+    width: 100%;
+  }
+
+  .bike-card {
+    width: 100%;
+  }
+}

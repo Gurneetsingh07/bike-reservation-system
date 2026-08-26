@@ -117,32 +117,92 @@ const deleteBike = async (req, res) => {
 
 const getBikes = async (req, res) => {
     try {
-        const { fromDate, toDate, page = 1, limit = 10 } = req.query;
-        console.log(`from date ${fromDate} `)
+        const {
+            name,
+            color,
+            location,
+            minRating,
+            fromDate,
+            toDate,
+            page = 1,
+            limit = 10,
+        } = req.query;
+
         const pageNumber = Number(page);
         const limitNumber = Number(limit);
+
         if (pageNumber < 1 || limitNumber < 1) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid page or limit",
             });
         }
+
+        // Date validation
         if ((fromDate && !toDate) || (!fromDate && toDate)) {
             return res.status(400).json({
                 success: false,
                 message: "Both fromDate and toDate are required",
             });
         }
+
         const query = {};
+
+        // Only non-managers should see available bikes
         if (req.user?.role !== "manager") {
             query.isAvailable = true;
         }
+
+        // NAME FILTER
+        if (name) {
+            query.name = {
+                $regex: name,
+                $options: "i",
+            };
+        }
+
+        // COLOR FILTER
+        if (color) {
+            query.color = {
+                $regex: `^${color}$`,
+                $options: "i",
+            };
+        }
+
+        // LOCATION FILTER
+        if (location) {
+            query.location = {
+                $regex: location,
+                $options: "i",
+            };
+        }
+
+        // MINIMUM RATING FILTER
+        if (minRating) {
+            const rating = Number(minRating);
+
+            if (isNaN(rating)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid minimum rating",
+                });
+            }
+
+            query.rating = {
+                $gte: rating,
+            };
+        }
+
+        // DATE AVAILABILITY FILTER
         if (fromDate && toDate) {
             const startDate = new Date(fromDate);
             const endDate = new Date(toDate);
+
             const today = new Date();
             today.setHours(0, 0, 0, 0);
+
             endDate.setHours(23, 59, 59, 999);
+
             if (
                 isNaN(startDate) ||
                 isNaN(endDate) ||
@@ -154,6 +214,7 @@ const getBikes = async (req, res) => {
                     message: "Invalid date range",
                 });
             }
+
             const reservations = await ReservationModel.find({
                 status: "active",
                 fromDate: { $lte: endDate },
@@ -161,10 +222,16 @@ const getBikes = async (req, res) => {
             }).select("bike");
 
             query._id = {
-                $nin: reservations.map(r => r.bike),
+                $nin: reservations.map(
+                    (reservation) => reservation.bike
+                ),
             };
         }
+
+        console.log("MongoDB query:", query);
+
         const skip = (pageNumber - 1) * limitNumber;
+
         const totalBikes = await Bike.countDocuments(query);
 
         const bikes = await Bike.find(query)

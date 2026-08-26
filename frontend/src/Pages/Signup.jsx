@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 const Signup = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({ email: "", password: "" });
-    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) =>
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,7 +21,6 @@ const Signup = () => {
         }
 
         try {
-            setLoading(true);
 
             const response = await fetch("/user/signup", {
                 method: "POST",
@@ -40,8 +38,6 @@ const Signup = () => {
             navigate("/login");
         } catch (error) {
             toast.error("Unable to connect to server");
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -73,8 +69,8 @@ const Signup = () => {
                         />
                     </div>
 
-                    <button type="submit" disabled={loading}>
-                        {loading ? "Creating Account..." : "Signup"}
+                    <button type="submit" >
+                        Signup
                     </button>
                 </form>
 

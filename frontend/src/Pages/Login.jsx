@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import { useDispatch } from "react-redux";
+import { setUserRole } from "../features/Slice/userSlice";
 const Login = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [formData, setFormData] = useState({ email: "", password: "" });
-    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) =>
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,26 +19,25 @@ const Login = () => {
         }
 
         try {
-            setLoading(true);
-
             const response = await fetch("/user/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify(formData),
             });
 
             const data = await response.json();
+            
 
             if (!response.ok) {
                 return toast.error(data.message || "Login failed");
             }
+            dispatch(setUserRole(data.user.role));
             toast.success("Login successful");
             navigate("/");
         } catch (error) {
             toast.error("Unable to connect to server");
-        } finally {
-            setLoading(false);
-        }
+        } 
     };
 
     return (
@@ -68,8 +68,8 @@ const Login = () => {
                         />
                     </div>
 
-                    <button type="submit" disabled={loading}>
-                        {loading ? "Logging in..." : "Login"}
+                    <button type="submit">
+                        Login
                     </button>
                 </form>
 

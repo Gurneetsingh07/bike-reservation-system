@@ -4,6 +4,7 @@ import connectDB from "./config/db.js";
 import bikeRoutes from "./routes/bikeRoutes.js";
 import userRoutes from "./routes/userRoutes.js"
 import reservationRoutes from "./routes/reservationRoutes.js";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 dotenv.config();
 const app = express();
@@ -14,6 +15,7 @@ app.use(
     })
 );
 app.use(express.json());
+app.use(cookieParser());
 app.use("/bikes", bikeRoutes);
 app.use("/user", userRoutes)
 app.use("/reservations", reservationRoutes);
