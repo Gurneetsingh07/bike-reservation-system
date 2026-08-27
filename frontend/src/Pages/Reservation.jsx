@@ -1,8 +1,10 @@
 import React from 'react'
-
+import Navbar from '../components/Navbar'
 const Reservation = () => {
   return (
-    <div>Reservation</div>
+    <>
+    <Navbar isLoggedIn={true} />
+    </>
   )
 }
 
