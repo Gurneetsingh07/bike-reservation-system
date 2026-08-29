@@ -210,8 +210,35 @@ const rateReservation = async (req, res) => {
     }
 }
 
+const getReservationsByBike = async (req, res) => {
+    try {
+        const { bikeId } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(bikeId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid bike ID",
+            });
+        }
+        const reservations = await Reservation.find({ bike: bikeId }).populate("user", "name email");
+        
+        return res.status(200).json({
+            success: true,
+            reservations,
+        });
+    } catch (error) {
+        console.error("Get reservations by bike error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message,
+        });
+    }
+};
+
+
 export {
     createReservation,
     cancelReservation,
-    rateReservation
+    rateReservation,
+    getReservationsByBike
 }

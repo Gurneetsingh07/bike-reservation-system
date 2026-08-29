@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef , useCallback } from "react";
 import Pagination from "./Pagination";
 import AddBike from "./AddBike";
 import EditBike from "./EditBike";
@@ -6,7 +6,8 @@ import DeleteBike from "./DeleteBike";
 
 const BikeList = ({ userRole, filters }) => {
   const [bikes, setBikes] = useState([]);
-
+  const [showReservations, setShowReservations] = useState(false);
+  const [bikeReservations, setBikeReservations] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
   const [totalPages, setTotalPages] = useState(1);
@@ -17,7 +18,7 @@ const BikeList = ({ userRole, filters }) => {
   const filterKey = JSON.stringify(filters);
   const previousFilterKey = useRef(filterKey);
 
-  const fetchBikes = async (pageNumber) => {
+  const fetchBikes = useCallback(async (pageNumber) => {
     try {
       const params = new URLSearchParams();
 
@@ -60,12 +61,13 @@ const BikeList = ({ userRole, filters }) => {
       }
 
       setBikes(data.data || []);
+      setTotalPages(data.totalPages || 1);
 
       setTotalPages(data.totalPages || 1);
     } catch (error) {
       console.error("Unable to connect to server");
     }
-  };
+  },[filters,limit]);
 
   useEffect(() => {
     if (previousFilterKey.current !== filterKey) {
@@ -94,6 +96,26 @@ const BikeList = ({ userRole, filters }) => {
     console.log("From Date:", filters.fromDate);
 
     console.log("To Date:", filters.toDate);
+  };
+  const handleViewReservations = async (bikeId) => {
+    try {
+      const response = await fetch(`/reservations/bike/${bikeId}`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error(data.message || "Failed to fetch reservations");
+        return;
+      }
+
+      setBikeReservations(data.reservations || []);
+      setShowReservations(true);
+    } catch (error) {
+      console.error("Unable to connect to server");
+    }
   };
 
   return (
@@ -155,6 +177,9 @@ const BikeList = ({ userRole, filters }) => {
                         bikeId={bike._id}
                         onBikeDeleted={() => fetchBikes(currentPage)}
                       />
+                      <button onClick={() => handleViewReservations(bike._id)}>
+                        View Reservations
+                      </button>
                     </div>
                   )}
                 </>
@@ -168,6 +193,69 @@ const BikeList = ({ userRole, filters }) => {
         totalPages={totalPages}
         setCurrentPage={setCurrentPage}
       />
+      {showReservations && (
+        <div
+          className="reservations-modal"
+          style={{
+            position: "fixed",
+            top: "20%",
+            left: "50%",
+            transform: "translate(-50%, -20%)",
+            backgroundColor: "#fff",
+            padding: "20px",
+            border: "1px solid #ccc",
+            zIndex: 1000,
+            maxHeight: "60vh",
+            overflowY: "auto",
+            boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
+          }}
+        >
+          <div className="reservations-modal-content">
+            <h3>Bike Reservations</h3>
+            <button
+              onClick={() => setShowReservations(false)}
+              style={{ marginBottom: "10px", float: "right" }}
+            >
+              Close
+            </button>
+
+            {bikeReservations.length === 0 ? (
+              <p>No reservations found for this bike.</p>
+            ) : (
+              <ul style={{ listStyleType: "none", padding: 0 }}>
+                {bikeReservations.map((res) => (
+                  <li
+                    key={res._id}
+                    style={{
+                      borderBottom: "1px solid #eee",
+                      paddingBottom: "10px",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    <p>
+                      <strong>Status:</strong> {res.status}
+                    </p>
+                    <p>
+                      <strong>From:</strong>{" "}
+                      {new Date(res.fromDate).toLocaleDateString()}
+                    </p>
+                    <p>
+                      <strong>To:</strong>{" "}
+                      {new Date(res.toDate).toLocaleDateString()}
+                    </p>
+                    {res.user && (
+                      <p>
+                        <strong>User:</strong> {res.user.name} ({res.user.email}
+                        )
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
