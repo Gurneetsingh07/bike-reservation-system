@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-
+import { useEffect, useState, useRef } from "react";
 import Pagination from "./Pagination";
 import AddBike from "./AddBike";
 import EditBike from "./EditBike";
@@ -15,6 +14,8 @@ const BikeList = ({ userRole, filters }) => {
   const [editingBikeId, setEditingBikeId] = useState(null);
 
   const limit = 10;
+  const filterKey = JSON.stringify(filters);
+  const previousFilterKey = useRef(filterKey);
 
   const fetchBikes = async (pageNumber) => {
     try {
@@ -66,25 +67,18 @@ const BikeList = ({ userRole, filters }) => {
     }
   };
 
-  // =========================
-  // FETCH WHEN PAGE CHANGES
-  // =========================
-
   useEffect(() => {
+    if (previousFilterKey.current !== filterKey) {
+      previousFilterKey.current = filterKey;
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+        return;
+      }
+      fetchBikes(1);
+      return;
+    }
     fetchBikes(currentPage);
-  }, [
-    currentPage,
-    filters.name,
-    filters.color,
-    filters.location,
-    filters.minRating,
-    filters.fromDate,
-    filters.toDate,
-  ]);
-
-  // =========================
-  // EDIT
-  // =========================
+  }, [fetchBikes, currentPage, filterKey]);
 
   const handleEdit = (bike) => {
     setEditingBikeId(bike._id);
@@ -93,10 +87,6 @@ const BikeList = ({ userRole, filters }) => {
   const handleCancelEdit = () => {
     setEditingBikeId(null);
   };
-
-  // =========================
-  // BOOK NOW
-  // =========================
 
   const handleBookNow = (bike) => {
     console.log("Book bike:", bike);
@@ -108,17 +98,9 @@ const BikeList = ({ userRole, filters }) => {
 
   return (
     <div className="bike-section">
-      {/* =========================
-                ADD BIKE
-            ========================= */}
-
       {userRole === "manager" && (
         <AddBike onBikeAdded={() => fetchBikes(currentPage)} />
       )}
-
-      {/* =========================
-                BIKE LIST
-            ========================= */}
 
       <div className="bike-list">
         {bikes.length === 0 ? (
@@ -126,8 +108,6 @@ const BikeList = ({ userRole, filters }) => {
         ) : (
           bikes.map((bike) => (
             <div className="bike-card" key={bike._id}>
-              {/* EDIT MODE */}
-
               {editingBikeId === bike._id ? (
                 <EditBike
                   bike={bike}
@@ -158,8 +138,6 @@ const BikeList = ({ userRole, filters }) => {
                     <strong>Status:</strong>{" "}
                     {bike.isAvailable ? "Available" : "Not Available"}
                   </p>
-
-                  {/* BOOK NOW */}
 
                   {filters.fromDate && filters.toDate && bike.isAvailable && (
                     <button
