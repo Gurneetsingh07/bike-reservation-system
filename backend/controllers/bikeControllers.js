@@ -228,8 +228,6 @@ const getBikes = async (req, res) => {
             };
         }
 
-        console.log("MongoDB query:", query);
-
         const skip = (pageNumber - 1) * limitNumber;
 
         const totalBikes = await Bike.countDocuments(query);
