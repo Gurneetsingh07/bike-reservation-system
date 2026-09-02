@@ -137,8 +137,6 @@ const getBikes = async (req, res) => {
                 message: "Invalid page or limit",
             });
         }
-
-        // Date validation
         if ((fromDate && !toDate) || (!fromDate && toDate)) {
             return res.status(400).json({
                 success: false,
@@ -147,13 +145,10 @@ const getBikes = async (req, res) => {
         }
 
         const query = {};
-
-        // Only non-managers should see available bikes
         if (req.user?.role !== "manager") {
             query.isAvailable = true;
         }
 
-        // NAME FILTER
         if (name) {
             query.name = {
                 $regex: name,
@@ -161,7 +156,6 @@ const getBikes = async (req, res) => {
             };
         }
 
-        // COLOR FILTER
         if (color) {
             query.color = {
                 $regex: `^${color}$`,
@@ -169,7 +163,6 @@ const getBikes = async (req, res) => {
             };
         }
 
-        // LOCATION FILTER
         if (location) {
             query.location = {
                 $regex: location,
@@ -177,7 +170,6 @@ const getBikes = async (req, res) => {
             };
         }
 
-        // MINIMUM RATING FILTER
         if (minRating) {
             const rating = Number(minRating);
 
@@ -193,7 +185,6 @@ const getBikes = async (req, res) => {
             };
         }
 
-        // DATE AVAILABILITY FILTER
         if (fromDate && toDate) {
             const startDate = new Date(fromDate);
             const endDate = new Date(toDate);
@@ -252,9 +243,11 @@ const getBikes = async (req, res) => {
         });
     }
 };
+
+
 export {
     addBike,
     updateBike,
     deleteBike,
-    getBikes
+    getBikes,
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./Pages/Login"
-
+import "./App.css";
 import Signup from "./Pages/Signup"
 import Home from "./Pages/Home"
 import Reservation from "./Pages/Reservation"

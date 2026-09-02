@@ -36,3 +36,21 @@
     transform: rotate(360deg);
   }
 }
+.reservation-page {
+  padding: 24px;
+}
+
+.reservation-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.reservation-card {
+  width: 320px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 16px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}

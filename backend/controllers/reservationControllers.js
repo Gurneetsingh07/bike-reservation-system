@@ -234,11 +234,65 @@ const getReservationsByBike = async (req, res) => {
         });
     }
 };
+const getReservations = async (req, res) => {
+    try {
+        const { userId, bikeId } = req.query;
+        const query = {};
 
+        if (userId || bikeId) {
+            if (req.user.role !== "manager") {
+                return res.status(403).json({
+                    success: false,
+                    message: "Only managers can filter reservations by user or bike",
+                });
+            }
+
+            if (userId) {
+                if (!mongoose.Types.ObjectId.isValid(userId)) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "Invalid user ID",
+                    });
+                }
+                query.user = userId;
+            }
+
+            if (bikeId) {
+                if (!mongoose.Types.ObjectId.isValid(bikeId)) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "Invalid bike ID",
+                    });
+                }
+                query.bike = bikeId;
+            }
+        } else {
+            query.user = req.user._id;
+        }
+
+        const reservations = await Reservation.find(query)
+            .populate("bike", "name color location rating isAvailable")
+            .populate("user", "email role")
+            .sort({ createdAt: -1 });
+
+        return res.status(200).json({
+            success: true,
+            reservations,
+        });
+    } catch (error) {
+        console.error("Get reservations error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message,
+        });
+    }
+};
 
 export {
     createReservation,
     cancelReservation,
     rateReservation,
-    getReservationsByBike
+    getReservationsByBike,
+    getReservations
 }
