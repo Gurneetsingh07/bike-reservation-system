@@ -5,7 +5,7 @@ import "./App.css";
 import Signup from "./Pages/Signup"
 import Home from "./Pages/Home"
 import Reservation from "./Pages/Reservation"
-
+import Users from "./Pages/Users"
 function App() {
   return (
     <Routes>
@@ -13,6 +13,7 @@ function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/" element={<Home />} />
       <Route path="/reservation" element={<Reservation />} />
+      <Route path="/users" element={<Users/>}/>
       <Route path="*" element={<Navigate to="/login" replace/>}/>
     </Routes>
   );
