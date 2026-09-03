@@ -246,11 +246,30 @@ const deleteUser = async (req, res) => {
         });
     }
 }
+const getUsers = async (req, res) => {
+    try {
+        const users = await User.find({}, "email role createdAt updatedAt").sort({
+            createdAt: -1,
+        });
+
+        return res.status(200).json({
+            message: "Users fetched successfully",
+            users,
+        });
+    } catch (error) {
+        console.error("Get users error:", error);
+
+        return res.status(500).json({
+            message: "Failed to fetch users",
+        });
+    }
+};
 export {
     signup,
     login,
     logout,
     createUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    getUsers
 }

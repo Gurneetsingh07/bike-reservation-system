@@ -1,5 +1,5 @@
 import express from "express"
-import { login, signup, logout, updateUser, deleteUser, createUser } from "../controllers/userControllers.js"
+import { login, signup, logout, updateUser, deleteUser, createUser,getUsers } from "../controllers/userControllers.js"
 import {
     authenticate,
     authorizeRoles
@@ -13,5 +13,6 @@ router.post("/logout", logout);
 router.post( "/",authenticate,authorizeRoles("manager"),createUser);
 router.put("/:id",authenticate,authorizeRoles("manager"),updateUser);
 router.delete("/:id",authenticate,authorizeRoles("manager"),deleteUser);
+router.get("/",authenticate,authorizeRoles("manager"),getUsers)
 
 export default router;
